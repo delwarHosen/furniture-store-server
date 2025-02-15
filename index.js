@@ -28,15 +28,15 @@ async function run() {
 
         const productCollection = client.db("furnitureStoreDB").collection('furnitureProduct')
 
-        app.get('/product',async(req,res)=>{
+        app.get('/product', async (req, res) => {
             const cursore = productCollection.find();
             const result = await cursore.toArray()
             res.send(result)
         })
 
-        app.get("/product/:id",async(req,res)=>{
+        app.get("/product/:id", async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await productCollection.findOne(query);
             res.send(result)
         })
@@ -47,6 +47,35 @@ async function run() {
             const result = await productCollection.insertOne(newProduct)
             res.send(result)
         })
+
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateProduct = req.body;
+            const product = {
+                $set: {
+                    name: updateProduct.name,
+                    quantity: updateProduct.quantity,
+                    details: updateProduct.details,
+                    category: updateProduct.category,
+                    price: updateProduct.price,
+                    discount: updateProduct.discount,
+                    photoUrl: updateProduct.photoUrl
+                }
+            }
+            const result = await productCollection.updateOne(filter, product, options)
+            res.send(result)
+        })
+
+        app.delete("/product/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await productCollection.deleteOne(query);
+            res.send(result)
+        })
+
+
 
 
         // Send a ping to confirm a successful connection
